@@ -9,17 +9,26 @@ type Circle    = (Point,Float)
 -- Paletas
 -------------------------------------------------------------------------------
 
--- Paleta (R, G, B) só com tons de verde "hard-coded" 
--- (pode ser melhorado substituindo os valores literais por parâmetros)
--- Além disso, o que acontecerá se n for muito grande ou negativo?
+-- Paleta (R, G, B) só com tons de verde
+-- Gera n tons de verde
 greenPalette :: Int -> [(Int,Int,Int)]
-greenPalette n = [(0, 80+i*10, 0) | i <- [0..n] ]
+greenPalette n = [(r,g,b) | r<-[0], g<-take n[0..255], b<-[0]]
+
+-- Gera n tons de azul
+bluePalette :: Int -> [(Int,Int,Int)]
+bluePalette n = [(r,g,b) | r<-[0], g<-[0], b<-take n[0..255]]
+
+-- Gera n tons de vermelho
+redPalette :: Int -> [(Int,Int,Int)]
+redPalette n = [(r,g,b) | r<-take n[0..255], g<-[0], b<-[0]]
+
 
 -- Paleta com n valores retirados de uma lista com sequências de R, G e B 
 -- O '$' é uma facilidade sintática que substitui parênteses
--- O cycle é uma função bacana -- procure saber mais sobre ela :-)
+-- Cria uma cor aleatória, a função cycle alterna os valores e a função seleciona n cores
 rgbPalette :: Int -> [(Int,Int,Int)]
 rgbPalette n = take n $ cycle [(255,0,0),(0,255,0),(0,0,255)]
+--rgbPalette n = [(r,g,b) | r<-take n[0,50..255], g<-take n[0,50..255], b <- take n[0,50..255]]
 
 
 
@@ -28,9 +37,10 @@ rgbPalette n = take n $ cycle [(255,0,0),(0,255,0),(0,0,255)]
 -------------------------------------------------------------------------------
 
 genRectsInLine :: Int -> [Rect]
-genRectsInLine n  = [((m*(w+gap), 0.0), w, h) | m <- [0..fromIntegral (n-1)]]
-  where (w,h) = (50,50)
-        gap = 10
+genRectsInLine n  = [((m*(w+gap), (m*(h+gap))), w, h) | m <- [0..fromIntegral (n-1)]]
+  where (w,h) = (15,15)
+        gap = 0
+
 
 
 -------------------------------------------------------------------------------
@@ -67,12 +77,12 @@ svgElements func elements styles = concat $ zipWith func elements styles
 
 main :: IO ()
 main = do
-  writeFile "rects.svg" $ svgstrs
+  writeFile "figs.svg" $ svgstrs
   where svgstrs = svgBegin w h ++ svgfigs ++ svgEnd
         svgfigs = svgElements svgRect rects (map svgStyle palette)
         rects = genRectsInLine nrects
-        palette = rgbPalette nrects
-        nrects = 10
+        palette = greenPalette nrects
+        nrects = 100
         (w,h) = (1500,500) -- width,height da imagem SVG
 
 
